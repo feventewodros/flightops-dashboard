@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments :: head('FlightOps — Book a seat')}"></head>
+<body>
+<nav th:replace="~{fragments :: nav(${username})}"></nav>
+
+<div class="container" style="max-width:520px;">
+    <div th:replace="~{fragments :: flash}"></div>
+
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <h4 class="card-title mb-1">Book a seat</h4>
+            <p class="text-muted mb-3">
+                <strong th:text="${flight.flightNumber}">UA1201</strong> ·
+                <span th:text="${flight.origin}">DEN</span> →
+                <span th:text="${flight.destination}">LAX</span> ·
+                <span th:text="${flight.availableSeats}">160</span> seats left
+            </p>
+            <form method="post" action="/book">
+                <input type="hidden" name="flightId" th:value="${flight.id}">
+                <div class="mb-3">
+                    <label class="form-label">Passenger name</label>
+                    <input type="text" name="passengerName" class="form-control" required autofocus>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Seat (optional, e.g. 14C)</label>
+                    <input type="text" name="seatNumber" class="form-control" placeholder="14C">
+                </div>
+                <button type="submit" class="btn btn-success">Confirm booking</button>
+                <a href="/" class="btn btn-outline-secondary">Cancel</a>
+            </form>
+        </div>
+    </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments :: head('FlightOps — Sign in')}"></head>
+<body>
+<nav th:replace="~{fragments :: nav(${username})}"></nav>
+
+<div class="container" style="max-width:420px;">
+    <div th:replace="~{fragments :: flash}"></div>
+
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <h4 class="card-title mb-3">Sign in</h4>
+            <form method="post" action="/login">
+                <div class="mb-3">
+                    <label class="form-label">Username</label>
+                    <input type="text" name="username" class="form-control" required autofocus>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Password</label>
+                    <input type="password" name="password" class="form-control" required>
+                </div>
+                <button type="submit" class="btn btn-primary w-100">Sign in</button>
+            </form>
+            <hr>
+            <p class="small text-muted mb-1">Demo accounts:</p>
+            <ul class="small text-muted mb-0">
+                <li><code>admin / admin123</code></li>
+                <li><code>dispatcher / dispatch123</code></li>
+                <li><code>viewer / viewer123</code></li>
+            </ul>
+        </div>
+    </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments :: head('FlightOps — Something went wrong')}"></head>
+<body>
+<nav th:replace="~{fragments :: nav(null)}"></nav>
+
+<div class="container" style="max-width:560px;">
+    <div class="card shadow-sm">
+        <div class="card-body text-center py-5">
+            <h4 class="mb-3">⚠️ Something went wrong</h4>
+            <p class="text-muted" th:text="${message}">Error detail</p>
+            <a href="/" class="btn btn-primary mt-2">Back to flight board</a>
+        </div>
+    </div>
+</div>
+</body>
+</html>

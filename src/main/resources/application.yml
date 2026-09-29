@@ -1,0 +1,14 @@
+spring:
+  application:
+    name: flightops-dashboard
+  thymeleaf:
+    cache: false
+
+server:
+  port: 8090
+
+# Base URL of the FlightOps REST API this dashboard talks to.
+# Override with API_BASE_URL in Docker / production.
+flightops:
+  api:
+    base-url: ${API_BASE_URL:http://localhost:8080}

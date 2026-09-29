@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments :: head('FlightOps — Flight Board')}"></head>
+<body>
+<nav th:replace="~{fragments :: nav(${username})}"></nav>
+
+<div class="container">
+    <div th:replace="~{fragments :: flash}"></div>
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h3 class="mb-0">Flight Board</h3>
+    </div>
+
+    <form method="get" action="/" class="row g-2 mb-4">
+        <div class="col-auto">
+            <input type="text" name="origin" class="form-control" placeholder="Origin (e.g. DEN)"
+                   th:value="${origin}" maxlength="3" style="text-transform:uppercase">
+        </div>
+        <div class="col-auto">
+            <input type="text" name="destination" class="form-control" placeholder="Destination (e.g. LAX)"
+                   th:value="${destination}" maxlength="3" style="text-transform:uppercase">
+        </div>
+        <div class="col-auto">
+            <button type="submit" class="btn btn-primary">Search</button>
+            <a href="/" class="btn btn-outline-secondary">Reset</a>
+        </div>
+    </form>
+
+    <div class="card shadow-sm">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                <tr>
+                    <th>Flight</th>
+                    <th>Route</th>
+                    <th>Aircraft</th>
+                    <th>Departure</th>
+                    <th>Status</th>
+                    <th class="text-center">Seats</th>
+                    <th></th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:if="${flights.isEmpty()}">
+                    <td colspan="7" class="text-center text-muted py-4">No flights found.</td>
+                </tr>
+                <tr th:each="f : ${flights}">
+                    <td><strong th:text="${f.flightNumber}">UA1201</strong></td>
+                    <td>
+                        <span th:text="${f.origin}">DEN</span>
+                        <span class="text-muted">→</span>
+                        <span th:text="${f.destination}">LAX</span>
+                    </td>
+                    <td class="text-muted small" th:text="${f.aircraft}">Boeing 737</td>
+                    <td>
+                        <span th:text="${#temporals.format(f.estimatedDeparture, 'MMM d, HH:mm')}">time</span>
+                        <span th:if="${f.delayMinutes > 0}" class="badge bg-warning text-dark ms-1"
+                              th:text="'+' + ${f.delayMinutes} + 'm'">+30m</span>
+                    </td>
+                    <td><span th:classappend="'status-' + ${f.status}" th:text="${f.status}">SCHEDULED</span></td>
+                    <td class="text-center" th:text="${f.availableSeats}">160</td>
+                    <td class="text-end">
+                        <a th:href="@{'/book/' + ${f.id}}" class="btn btn-sm btn-success"
+                           th:classappend="${f.availableSeats == 0} ? 'disabled' : ''">Book</a>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <p class="text-muted small mt-3">
+        Data served live from the FlightOps REST API. Sign in (try <code>dispatcher / dispatch123</code>) to book a seat.
+    </p>
+</div>
+</body>
+</html>
