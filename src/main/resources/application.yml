@@ -5,7 +5,8 @@ spring:
     cache: false
 
 server:
-  port: 8090
+  # Binds to the platform-provided port when deployed (Render sets $PORT), else 8090 locally.
+  port: ${PORT:8090}
 
 # Base URL of the FlightOps REST API this dashboard talks to.
 # Override with API_BASE_URL in Docker / production.

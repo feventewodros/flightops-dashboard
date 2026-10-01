@@ -1,0 +1,14 @@
+# Render Blueprint — deploys the FlightOps Dashboard as a free Docker web service.
+# Points at the live FlightOps API. In the Render dashboard: New + → Blueprint → connect this repo → Apply.
+services:
+  - type: web
+    name: flightops-dashboard
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    plan: free
+    # /login renders without calling the API, so it's a stable health check.
+    healthCheckPath: /login
+    autoDeploy: true
+    envVars:
+      - key: API_BASE_URL
+        value: https://flightops-api-zj07.onrender.com
