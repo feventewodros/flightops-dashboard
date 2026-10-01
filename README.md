@@ -7,7 +7,8 @@ the user's **JWT in the session**, and lets dispatchers search flights and book 
 > Built by Feven Tewodros. Demonstrates full-stack development and **service-to-service integration**:
 > this app owns no database — it talks to the FlightOps API like a real front end talks to a backend.
 
-**Live demo:** _[deploying — link goes here]_
+**Live demo:** https://flightops-dashboard.onrender.com
+_(free tier — if both services are asleep the board waits a few seconds while the API wakes, then renders)_
 
 ---
 
