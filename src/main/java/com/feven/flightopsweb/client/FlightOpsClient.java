@@ -8,11 +8,14 @@ import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
+import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestClient;
+import org.springframework.web.client.RestClientResponseException;
 
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Supplier;
 
 /** Thin HTTP client over the FlightOps REST API. */
 @Component
@@ -25,26 +28,22 @@ public class FlightOpsClient {
     }
 
     public List<FlightView> searchFlights(String origin, String destination) {
-        return rest.get()
+        return withWakeRetry(() -> rest.get()
                 .uri(uri -> uri.path("/api/flights")
                         .queryParamIfPresent("origin", opt(origin))
                         .queryParamIfPresent("destination", opt(destination))
                         .build())
                 .retrieve()
-                .onStatus(HttpStatusCode::isError, (req, res) -> {
-                    throw new ApiException("Could not load flights (" + res.getStatusCode() + ")");
-                })
-                .body(new ParameterizedTypeReference<List<FlightView>>() {});
+                .body(new ParameterizedTypeReference<List<FlightView>>() {}),
+                "Could not load flights");
     }
 
     public FlightView getFlight(Long id) {
-        return rest.get()
+        return withWakeRetry(() -> rest.get()
                 .uri("/api/flights/{id}", id)
                 .retrieve()
-                .onStatus(HttpStatusCode::isError, (req, res) -> {
-                    throw new ApiException("Flight " + id + " not found");
-                })
-                .body(FlightView.class);
+                .body(FlightView.class),
+                "Flight " + id + " not found");
     }
 
     public AuthResult login(String username, String password) {
@@ -74,6 +73,40 @@ public class FlightOpsClient {
                     throw new ApiException(extractMessage(body, res.getStatusCode().toString()));
                 })
                 .body(BookingView.class);
+    }
+
+    /**
+     * Runs an API call, retrying while the API is still waking from a free-tier cold start
+     * (it returns 5xx or refuses the connection for ~50s). Gives up after ~60s with a friendly error.
+     */
+    private <T> T withWakeRetry(Supplier<T> call, String failMsg) {
+        final int attempts = 10;
+        for (int i = 0; i < attempts; i++) {
+            try {
+                return call.get();
+            } catch (RestClientResponseException e) {
+                boolean waking = e.getStatusCode().is5xxServerError();
+                if (!waking || i == attempts - 1) {
+                    throw new ApiException(failMsg + " (" + e.getStatusCode() + ")");
+                }
+                sleep(6000);
+            } catch (ResourceAccessException e) {
+                if (i == attempts - 1) {
+                    throw new ApiException(failMsg + " (service unreachable)");
+                }
+                sleep(6000);
+            }
+        }
+        throw new ApiException(failMsg);
+    }
+
+    private void sleep(long ms) {
+        try {
+            Thread.sleep(ms);
+        } catch (InterruptedException ie) {
+            Thread.currentThread().interrupt();
+            throw new ApiException("Request interrupted");
+        }
     }
 
     private java.util.Optional<String> opt(String s) {
